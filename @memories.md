@@ -1,3 +1,9 @@
 [v0.1.0] Development: Installed and configured shadcn/ui in the Next.js project with TypeScript support - Set up with neutral color scheme, added Button component as initial UI element, configured Tailwind CSS integration, and established component architecture following shadcn/ui best practices. Implementation includes proper TypeScript types, accessibility features, and responsive design capabilities. #feature #setup 
 
 [v0.1.1] Development: Created HTML-to-Image demo page with interactive features - Implemented responsive UI using shadcn/ui components (Card, Input, Button), integrated html-to-image library for PNG conversion, added real-time preview with customizable text and background color, implemented error handling and loading states, ensured accessibility with proper ARIA labels and keyboard navigation. #feature #demo 
+
+[v0.1.2] Development: Enhanced HTML-to-Image demo with direct HTML input and file upload capabilities - Added HTML/SVG file upload support, implemented syntax-highlighted HTML textarea input, added error handling for invalid files and HTML content, improved preview rendering with proper overflow handling and background color support. #feature #enhancement 
+
+[v0.1.3] Development: Improved HTML-to-image conversion with direct content processing - Implemented off-screen rendering for clean image generation, added image resource loading handling, enhanced error detection for external resources, improved background color application, and optimized conversion process for better output quality. #enhancement #performance 
+
+[v0.1.4] Development: Simplified HTML-to-image conversion process - Removed off-screen rendering in favor of direct preview element conversion, streamlined DOM manipulation, improved preview-to-image consistency, and maintained resource loading checks for reliable image generation. #enhancement #refactor

@@ -5,31 +5,71 @@ import * as htmlToImage from 'html-to-image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function HtmlToImageDemo() {
-  const elementRef = useRef<HTMLDivElement>(null);
-  const [text, setText] = useState('Hello, World!');
+  const contentRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [htmlContent, setHtmlContent] = useState('<h1>Hello, World!</h1>');
   const [bgColor, setBgColor] = useState('#f3f4f6');
   const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Check file extension
+    const extension = file.name.split('.').pop()?.toLowerCase();
+    if (extension !== 'html' && extension !== 'svg') {
+      setError('Only .html and .svg files are supported');
+      return;
+    }
+
+    try {
+      const text = await file.text();
+      setHtmlContent(text);
+      setError('');
+    } catch (err) {
+      setError('Error reading file');
+      console.error('Error reading file:', err);
+    }
+  };
 
   const handleDownload = async () => {
-    if (!elementRef.current) return;
-    
+    if (!contentRef.current) return;
+
     try {
       setDownloading(true);
-      
-      const dataUrl = await htmlToImage.toPng(elementRef.current, {
+      setError('');
+
+      // Find all images in the content
+      const images = contentRef.current.querySelectorAll('img');
+      await Promise.all(
+        Array.from(images).map(
+          (img) => 
+            new Promise((resolve) => {
+              if (img.complete) resolve(true);
+              img.onload = () => resolve(true);
+              img.onerror = () => resolve(false);
+            })
+        )
+      );
+
+      const dataUrl = await htmlToImage.toPng(contentRef.current, {
         quality: 1.0,
         pixelRatio: 2,
+        backgroundColor: bgColor,
       });
       
-      // Create a link element and trigger download
+      // Create download link
       const link = document.createElement('a');
-      link.download = 'html-to-image-demo.png';
+      link.download = 'converted-content.png';
       link.href = dataUrl;
       link.click();
     } catch (error) {
       console.error('Error generating image:', error);
+      setError('Error generating image. Make sure your HTML is valid and all resources are accessible.');
     } finally {
       setDownloading(false);
     }
@@ -46,13 +86,26 @@ export default function HtmlToImageDemo() {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-2">
-              <label htmlFor="text" className="text-sm font-medium">Text Content</label>
-              <Input
-                id="text"
-                value={text}
-                onChange={(e) => setText(e.target.value)}
-                placeholder="Enter text to display"
+              <label htmlFor="html-content" className="text-sm font-medium">HTML Content</label>
+              <Textarea
+                id="html-content"
+                value={htmlContent}
+                onChange={(e) => setHtmlContent(e.target.value)}
+                placeholder="Enter HTML content"
+                className="font-mono h-[400px] resize-none overflow-auto"
               />
+            </div>
+
+            <div className="space-y-2">
+              <label htmlFor="file-upload" className="text-sm font-medium">Upload HTML/SVG File</label>
+              <Input
+                id="file-upload"
+                type="file"
+                accept=".html,.svg"
+                onChange={handleFileUpload}
+                ref={fileInputRef}
+              />
+              <p className="text-xs text-gray-500">Supported formats: .html, .svg</p>
             </div>
             
             <div className="space-y-2">
@@ -64,6 +117,12 @@ export default function HtmlToImageDemo() {
                 onChange={(e) => setBgColor(e.target.value)}
               />
             </div>
+
+            {error && (
+              <div className="text-red-500 text-sm p-2 bg-red-50 rounded-md">
+                {error}
+              </div>
+            )}
             
             <Button 
               onClick={handleDownload}
@@ -81,13 +140,13 @@ export default function HtmlToImageDemo() {
           </CardHeader>
           <CardContent>
             <div 
-              ref={elementRef}
               style={{ backgroundColor: bgColor }}
-              className="p-8 rounded-lg transition-colors duration-200 min-h-[200px] flex items-center justify-center"
+              className="p-8 rounded-lg transition-colors duration-200 min-h-[400px] flex items-center justify-center"
             >
-              <h2 className="text-2xl font-bold text-center break-words max-w-full">
-                {text}
-              </h2>
+              <div 
+                dangerouslySetInnerHTML={{ __html: htmlContent }} 
+                ref={contentRef} 
+              />
             </div>
           </CardContent>
         </Card>
