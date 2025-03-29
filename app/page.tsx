@@ -28,6 +28,7 @@ interface HtmlToImageOptions {
 
 export default function HtmlToImageDemo() {
   const contentRef = useRef<HTMLDivElement>(null);
+  const contentWrapperRef = useRef<HTMLDivElement>(null);
   const [htmlContent, setHtmlContent] = useState('<h1>Hello, World!</h1>');
   const [bgColor, setBgColor] = useState('#f3f4f6');
   const [downloading, setDownloading] = useState(false);
@@ -40,8 +41,39 @@ export default function HtmlToImageDemo() {
   const [pixelRatio, setPixelRatio] = useState<number>(2);
   const [imageWidth, setImageWidth] = useState<string>('');
   const [imageHeight, setImageHeight] = useState<string>('');
+  const [contentWidth, setContentWidth] = useState<number>(0);
 
   const throttledHtmlContent = useThrottle(htmlContent, 2000);
+
+  // Measure content width after render
+  useEffect(() => {
+    if (contentRef.current && contentWrapperRef.current) {
+      const resizeObserver = new ResizeObserver(entries => {
+        for (const entry of entries) {
+          // Get the width of the content
+          const contentWidth = entry.contentRect.width;
+          setContentWidth(contentWidth);
+          
+          // Adjust the wrapper width based on content width
+          if (contentWrapperRef.current) {
+            if (contentWidth <= 1) {
+              contentWrapperRef.current.style.width = '100%';
+            } else {
+              contentWrapperRef.current.style.width = 'auto';
+            }
+          }
+        }
+      });
+      
+      resizeObserver.observe(contentRef.current);
+      
+      return () => {
+        if (contentRef.current) {
+          resizeObserver.unobserve(contentRef.current);
+        }
+      };
+    }
+  }, [throttledHtmlContent]);
 
   // Load saved settings from localStorage on component mount
   useEffect(() => {
@@ -225,13 +257,20 @@ export default function HtmlToImageDemo() {
       <div style={{
         position: 'fixed',
         left: '-9999px',
-        width: '100%',
         top: '-9999px',
-      }}>
+        width: contentWidth <= 1 ? '100%' : 'auto'
+      }}
+      
+      // style={{ width: contentWidth <= 1 ? '100%' : 'auto' }}
+      >
         <div 
-          ref={contentRef}
-          dangerouslySetInnerHTML={{ __html: htmlContent }} 
-        />
+          ref={contentWrapperRef}
+        >
+          <div 
+            ref={contentRef}
+            dangerouslySetInnerHTML={{ __html: htmlContent }} 
+          />
+        </div>
       </div>
 
       {/* Header */}
