@@ -1,10 +1,27 @@
 Current Phase: [PHASE-1]
-Mode Context: Implementation
-Status: Active
-Confidence: 100%
-Last Updated: [v0.1.4]
+Mode Context: [Documentation]
+Status: [Active]
+Confidence: [100%]
+Last Updated: [v1.0.1]
 
 Tasks:
+[DOC-001] Create comprehensive README.md
+Status: [X] Priority: [High]
+Dependencies: []
+Progress Notes:
+- [v1.0.1] Replaced generic Next.js template README with detailed 2Image application documentation including:
+  * Clear project description and purpose (HTML to image converter)
+  * Complete feature list (format options, preview, settings customization)
+  * Accurate tech stack details (Next.js 15, React 19, html-to-image, etc.)
+  * Comprehensive installation and usage instructions
+  * Contributing guidelines and acknowledgments
+
+[DOC-002] Create in-app documentation or help section
+Status: [ ] Priority: [Medium]
+Dependencies: []
+Progress Notes:
+- [v1.0.1] Identified need for in-app documentation to help users understand conversion options
+
 [ID-001] Install and configure shadcn/ui
 Status: [X] Priority: [High]
 Dependencies: None
