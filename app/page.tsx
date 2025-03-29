@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import * as htmlToImage from 'html-to-image';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -91,7 +91,7 @@ export default function HtmlToImageDemo() {
   }, [bgColor, imageFormat, imageQuality, pixelRatio, imageWidth, imageHeight]);
 
   // Generate image from HTML content
-  const generateImage = async () => {
+  const generateImage = useCallback(async () => {
     if (!contentRef.current) return null;
 
     try {
@@ -143,7 +143,7 @@ export default function HtmlToImageDemo() {
       setIsGenerating(false);
       return null;
     }
-  };
+  }, [bgColor, imageFormat, imageHeight, imageQuality, imageWidth, pixelRatio]);
 
   // Update preview when content or background color changes
   useEffect(() => {
