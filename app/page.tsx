@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect, useCallback } from 'react';
+import { useRef, useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import * as htmlToImage from 'html-to-image';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
@@ -41,39 +41,9 @@ export default function HtmlToImageDemo() {
   const [pixelRatio, setPixelRatio] = useState<number>(2);
   const [imageWidth, setImageWidth] = useState<string>('');
   const [imageHeight, setImageHeight] = useState<string>('');
-  const [contentWidth, setContentWidth] = useState<number>(0);
+  const [contentWidth, setContentWidth] = useState<number>(2);
 
   const throttledHtmlContent = useThrottle(htmlContent, 2000);
-
-  // Measure content width after render
-  useEffect(() => {
-    if (contentRef.current && contentWrapperRef.current) {
-      const resizeObserver = new ResizeObserver(entries => {
-        for (const entry of entries) {
-          // Get the width of the content
-          const contentWidth = entry.contentRect.width;
-          setContentWidth(contentWidth);
-          
-          // Adjust the wrapper width based on content width
-          if (contentWrapperRef.current) {
-            if (contentWidth <= 1) {
-              contentWrapperRef.current.style.width = '100%';
-            } else {
-              contentWrapperRef.current.style.width = 'auto';
-            }
-          }
-        }
-      });
-      
-      resizeObserver.observe(contentRef.current);
-      
-      return () => {
-        if (contentRef.current) {
-          resizeObserver.unobserve(contentRef.current);
-        }
-      };
-    }
-  }, [throttledHtmlContent]);
 
   // Load saved settings from localStorage on component mount
   useEffect(() => {
@@ -125,7 +95,7 @@ export default function HtmlToImageDemo() {
   // Generate image from HTML content
   const generateImage = useCallback(async () => {
     if (!contentRef.current) return null;
-
+    
     try {
       setIsGenerating(true);
       // Wait for any images to load
@@ -152,6 +122,8 @@ export default function HtmlToImageDemo() {
       if (imageWidth) options.width = parseInt(imageWidth);
       if (imageHeight) options.height = parseInt(imageHeight);
 
+      console.log('contentWidth', contentWidth);
+
       // Generate image based on selected format
       let result;
       switch (imageFormat) {
@@ -175,11 +147,14 @@ export default function HtmlToImageDemo() {
       setIsGenerating(false);
       return null;
     }
-  }, [bgColor, imageFormat, imageHeight, imageQuality, imageWidth, pixelRatio]);
+  }, [bgColor, imageFormat, imageHeight, imageQuality, imageWidth, pixelRatio, contentWidth]);
 
   // Update preview when content or background color changes
   useEffect(() => {
+    let timeout: NodeJS.Timeout;
+
     const updatePreview = async () => {
+      await new Promise(resolve => setTimeout(resolve, 0));
       const dataUrl = await generateImage();
 
       if (dataUrl === 'data:,' || dataUrl === null) {
@@ -195,16 +170,40 @@ export default function HtmlToImageDemo() {
     };
 
     if (throttledHtmlContent?.trim() !== '') {
-      updatePreview();
+      setContentWidth(2);
+
+      timeout = setTimeout(() => {
+        if (contentRef.current) {
+          const contentWidth = contentRef.current.scrollWidth;
+          console.log('contentWidth--22', contentWidth);
+          setContentWidth(contentWidth);
+          updatePreview();
+        }
+      }, 0);
     } else {
       setPreviewUrl(null);
       setError('');
     }
 
-    console.log('a', throttledHtmlContent, bgColor, imageFormat, imageQuality, pixelRatio, imageWidth, imageHeight);
+    return () => clearTimeout(timeout);
 
-  }, [throttledHtmlContent, bgColor, imageFormat, imageQuality, pixelRatio, imageWidth, imageHeight, generateImage]);
+  }, [throttledHtmlContent, bgColor, imageFormat, imageQuality, pixelRatio, imageWidth, imageHeight]);
 
+  // useLayoutEffect(() => {
+  //   if (throttledHtmlContent?.trim() !== '') {
+  //     setContentWidth(2);
+
+  //     const timeout = setTimeout(() => {
+  //       if (contentRef.current) {
+  //         const contentWidth = contentRef.current.scrollWidth;
+  //         console.log('contentWidth', contentWidth);
+  //         setContentWidth(contentWidth);
+  //       }
+  //     }, 0);
+
+  //     return () => clearTimeout(timeout);
+  //   }
+  // }, [throttledHtmlContent])
   // Handle file upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
