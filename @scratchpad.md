@@ -71,4 +71,13 @@ Status: [X] Priority: [High]
 Dependencies: []
 Progress Notes:
 - [v1.0.2] Installed @radix-ui/react-label package to resolve TypeScript error
-- [v1.0.2] Verified fix resolves "Cannot find module '@radix-ui/react-label'" error 
+- [v1.0.2] Verified fix resolves "Cannot find module '@radix-ui/react-label'" error
+
+[BUG-002] Fix ESLint errors in the build process
+Status: [-] Priority: [High]
+Dependencies: []
+Progress Notes:
+- [v1.0.3] Identified ESLint errors during build:
+  * Replace explicit 'any' type in app/page.tsx line 99
+  * Fix missing 'generateImage' dependency in useEffect hook
+  * Replace <img> elements with Next.js <Image> component for optimization 

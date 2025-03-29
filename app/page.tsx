@@ -2,6 +2,7 @@
 
 import { useRef, useState, useEffect } from 'react';
 import * as htmlToImage from 'html-to-image';
+import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -11,6 +12,19 @@ import { Toaster } from '@/components/ui/sonner';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 import { useThrottle } from 'react-use';
+
+// Define interface for html-to-image options
+interface HtmlToImageOptions {
+  quality?: number;
+  pixelRatio?: number;
+  backgroundColor?: string;
+  width?: number;
+  height?: number;
+  canvasWidth?: number;
+  canvasHeight?: number;
+  style?: Record<string, string>;
+  filter?: (node: HTMLElement) => boolean;
+}
 
 export default function HtmlToImageDemo() {
   const contentRef = useRef<HTMLDivElement>(null);
@@ -96,7 +110,7 @@ export default function HtmlToImageDemo() {
       );
 
       // Set options for image generation
-      const options: any = {
+      const options: HtmlToImageOptions = {
         quality: imageQuality,
         pixelRatio: pixelRatio,
         backgroundColor: bgColor,
@@ -157,7 +171,7 @@ export default function HtmlToImageDemo() {
 
     console.log('a', throttledHtmlContent, bgColor, imageFormat, imageQuality, pixelRatio, imageWidth, imageHeight);
 
-  }, [throttledHtmlContent, bgColor, imageFormat, imageQuality, pixelRatio, imageWidth, imageHeight]);
+  }, [throttledHtmlContent, bgColor, imageFormat, imageQuality, pixelRatio, imageWidth, imageHeight, generateImage]);
 
   // Handle file upload
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -454,11 +468,14 @@ export default function HtmlToImageDemo() {
                         <p className="text-muted-foreground">Generating preview...</p>
                       </div>
                     ) : previewUrl ? (
-                      <img 
+                      <Image 
                         src={previewUrl}
                         alt="Preview"
                         className="max-w-full max-h-full w-auto h-auto rounded-md shadow-sm"
                         style={{ objectFit: 'contain' }}
+                        width={500}
+                        height={300}
+                        unoptimized
                       />
                     ) : (
                       <div className="text-center p-8">
