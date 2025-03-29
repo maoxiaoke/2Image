@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect, useCallback, useLayoutEffect } from 'react';
+import { useRef, useState, useEffect, useCallback } from 'react';
 import * as htmlToImage from 'html-to-image';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
