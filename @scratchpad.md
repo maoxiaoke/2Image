@@ -64,4 +64,11 @@ Progress Notes:
 - [v0.1.4] Removed off-screen rendering
 - [v0.1.4] Implemented direct preview conversion
 - [v0.1.4] Improved preview-to-image consistency
-- [v0.1.4] Maintained resource loading reliability 
+- [v0.1.4] Maintained resource loading reliability
+
+[BUG-001] Fix missing @radix-ui/react-label dependency
+Status: [X] Priority: [High]
+Dependencies: []
+Progress Notes:
+- [v1.0.2] Installed @radix-ui/react-label package to resolve TypeScript error
+- [v1.0.2] Verified fix resolves "Cannot find module '@radix-ui/react-label'" error 
